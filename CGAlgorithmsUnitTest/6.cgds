@@ -1,0 +1,17 @@
+BeginSection:Points
+EndSection:Points
+BeginSection:Lines
+-166,22.5,78,93.5
+-134,-0.5,42,107.5
+-163,8.5,-32,101.5
+-65,104.5,-22,89.5
+-83,87.5,-45,78.5
+-108,72.5,-81,64.5
+-2,97.5,122,37.5
+40,-0.5,101,78.5
+28,30.5,102,-6.5
+43,-45.5,100,18.5
+43,-20.5,105,-38.5
+EndSection:Lines
+BeginSection:Polygons
+EndSection:Polygons
