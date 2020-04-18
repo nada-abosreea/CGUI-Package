@@ -23,8 +23,8 @@ namespace CGAlgorithms.Algorithms.PolygonTriangulation
         public vertexType type; //fnc to find it
         public int edgeIndex;
 
-        Event() { }
-        Event(Point v, vertexType t, int i)
+        public Event() { }
+        public Event(Point v, vertexType t, int i)
         {
             vertix = v;
             type = t;
@@ -81,7 +81,40 @@ namespace CGAlgorithms.Algorithms.PolygonTriangulation
             else return 1;
         }
 
+        public vertexType getVertexType(int index) //index of vertex
+        {
+            Enums.TurnType turn = new Enums.TurnType();
+            //double angle = 0;
 
+            Point Prev, Vertex, Next;
+            Vertex = P.lines[index].Start;
+            Next = P.lines[index % P.lines.Count].End;
+            if (index != 0) Prev = P.lines[P.lines.Count - 1].Start;    
+            else Prev = P.lines[index - 1].Start;     
+            
+            turn = HelperMethods.CheckTurn(new Line(Prev, Vertex), Next);
+
+            /*
+            Point CB = new Point(Vertex.X - Prev.X, Vertex.Y - Prev.Y);
+            Point BA = new Point(Next.X - Vertex.X , Next.Y - Vertex.Y);
+            double dot = (CB.X * BA.Y) - (CB.Y * BA.X);            double CBnorm = Math.Sqrt((CB.X * CB.X) + (CB.Y * CB.Y));
+            double BAnorm = Math.Sqrt((BA.X * BA.X) + (BA.Y * BA.Y));
+
+            angle = Math.Abs(Math.Asin(dot / (CBnorm * BAnorm)));*/
+
+            //Left <180, Right >180
+            if (turn == Enums.TurnType.Left && Prev.Y < Vertex.Y && Next.Y < Vertex.Y)
+                return vertexType.Start;
+            else if (turn == Enums.TurnType.Right && Prev.Y < Vertex.Y && Next.Y < Vertex.Y)
+                return vertexType.Split;
+            else if (turn == Enums.TurnType.Left && Prev.Y > Vertex.Y && Next.Y > Vertex.Y)
+                return vertexType.End;
+            else if (turn == Enums.TurnType.Right && Prev.Y > Vertex.Y && Next.Y > Vertex.Y)
+                return vertexType.Merge;
+            else 
+                return vertexType.Regular;
+
+        }
 
         public override void Run(List<CGUtilities.Point> points, List<CGUtilities.Line> lines, List<CGUtilities.Polygon> polygons, ref List<CGUtilities.Point> outPoints, ref List<CGUtilities.Line> outLines, ref List<CGUtilities.Polygon> outPolygons)
         {
@@ -89,7 +122,52 @@ namespace CGAlgorithms.Algorithms.PolygonTriangulation
             Q = new OrderedSet<Event>(new Comparison<Event>(PriorityQueueComp));
             T = new OrderedSet<Event>(new Comparison<Event>(T_mode));
 
+            for(int i=0;i<P.lines.Count;i++)
+            {
+                Event ev = new Event(P.lines[0].Start, getVertexType(i),i);
+            }
+
+            SweepLinePositionY = Q.GetFirst().vertix.Y;
+
+            while (Q.Count > 0)
+            {
+                Event ev = Q.GetFirst();
+                Q.RemoveFirst(); //pop
+
+                if (ev.type == vertexType.Start) HandleStart();
+                else if (ev.type == vertexType.End) HandleEnd();
+                else if (ev.type == vertexType.Split) HandleSplit();
+                else if (ev.type == vertexType.Merge) HandleMerge();
+                else if (ev.type == vertexType.Regular) HandleRegular();
+
+            }
         }
+
+        private void HandleStart()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void HandleEnd()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void HandleSplit()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void HandleMerge()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void HandleRegular()
+        {
+            throw new NotImplementedException();
+        }
+
 
         public override string ToString()
         {
