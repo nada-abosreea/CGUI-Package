@@ -37,12 +37,14 @@ namespace CGAlgorithms.Algorithms.PolygonTriangulation
 
     class MonotonePartitioning : Algorithm
     {
-        Dictionary<int, Point> helper = new Dictionary<int, Point>();  // edgeIndex , vertix
+        Dictionary<int, Event> helper = new Dictionary<int, Event>();  // edgeIndex , vertix
         double SweepLinePositionY; //keeps track of Y position of sweep line
 
         Polygon P;
         OrderedSet<Event> Q;
         OrderedSet<Event> T;
+
+        List<Line> output = new List<Line>();
 
         public int PriorityQueueComp(Event ev1, Event ev2) // return -1 if p1 is bigger, 1 if p2 is bigger, 0 if equal
         {
@@ -122,9 +124,11 @@ namespace CGAlgorithms.Algorithms.PolygonTriangulation
             Q = new OrderedSet<Event>(new Comparison<Event>(PriorityQueueComp));
             T = new OrderedSet<Event>(new Comparison<Event>(T_mode));
 
+
             for(int i=0;i<P.lines.Count;i++)
             {
-                Event ev = new Event(P.lines[0].Start, getVertexType(i),i);
+                Event ev = new Event(P.lines[i].Start, getVertexType(i),i);
+                Q.Add(ev);
             }
 
             SweepLinePositionY = Q.GetFirst().vertix.Y;
@@ -132,40 +136,98 @@ namespace CGAlgorithms.Algorithms.PolygonTriangulation
             while (Q.Count > 0)
             {
                 Event ev = Q.GetFirst();
+                SweepLinePositionY = Q.GetFirst().vertix.Y;
                 Q.RemoveFirst(); //pop
 
-                if (ev.type == vertexType.Start) HandleStart();
-                else if (ev.type == vertexType.End) HandleEnd();
-                else if (ev.type == vertexType.Split) HandleSplit();
-                else if (ev.type == vertexType.Merge) HandleMerge();
-                else if (ev.type == vertexType.Regular) HandleRegular();
+                if (ev.type == vertexType.Start) HandleStart(ev);
+                else if (ev.type == vertexType.End) HandleEnd(ev);
+                else if (ev.type == vertexType.Split) HandleSplit(ev);
+                else if (ev.type == vertexType.Merge) HandleMerge(ev);
+                else if (ev.type == vertexType.Regular) HandleRegular(ev);
 
             }
         }
 
-        private void HandleStart()
+        private void HandleStart(Event ev)
         {
-            throw new NotImplementedException();
+            T.Add(ev);
+            helper[ev.edgeIndex] = ev;
+            //throw new NotImplementedException();
         }
 
-        private void HandleEnd()
+        private void HandleEnd(Event ev)
         {
-            throw new NotImplementedException();
+            if(helper[ev.edgeIndex-1].type == vertexType.Merge)
+            {
+                output.Add(new Line(ev.vertix, helper[ev.edgeIndex - 1].vertix));
+            }
+            T.Remove(ev);
+            //throw new NotImplementedException();
         }
 
-        private void HandleSplit()
+        private void HandleSplit(Event ev)
         {
-            throw new NotImplementedException();
+            Event Left = T.DirectUpperAndLower(ev).Value;
+            output.Add(new Line(ev.vertix,helper[Left.edgeIndex].vertix));
+            helper[Left.edgeIndex] = ev;
+            T.Add(ev);
+            helper[ev.edgeIndex] = ev;
+            //throw new NotImplementedException();
         }
 
-        private void HandleMerge()
+        private void HandleMerge(Event ev)
         {
-            throw new NotImplementedException();
+            if(helper[ev.edgeIndex-1].type == vertexType.Merge)
+            {
+                output.Add(new Line(ev.vertix, helper[ev.edgeIndex-1].vertix));
+            }
+
+            Event prev = new Event(P.lines[ev.edgeIndex - 1].Start, getVertexType(ev.edgeIndex - 1), ev.edgeIndex - 1);
+            T.Remove(prev);
+
+            Event Left = T.DirectUpperAndLower(ev).Value;
+            
+            if(helper[Left.edgeIndex].type== vertexType.Merge)
+            {
+                output.Add(new Line(ev.vertix,helper[Left.edgeIndex].vertix));
+            }
+
+            helper[Left.edgeIndex] = ev;
+            //throw new NotImplementedException();
         }
 
-        private void HandleRegular()
+        private void HandleRegular(Event ev)
         {
-            throw new NotImplementedException();
+            Point Prev, Next;
+            Next = P.lines[ev.edgeIndex % P.lines.Count].End;
+            if (ev.edgeIndex != 0) Prev = P.lines[P.lines.Count - 1].Start;
+            else Prev = P.lines[ev.edgeIndex - 1].Start;
+
+            if(Prev.Y > Next.Y) //P interior is at the right 
+            {
+                if(helper[ev.edgeIndex-1].type == vertexType.Merge)
+                {
+                    output.Add(new Line(ev.vertix, helper[ev.edgeIndex - 1].vertix));
+                }
+
+                Event prv = new Event(P.lines[ev.edgeIndex - 1].Start, getVertexType(ev.edgeIndex - 1), ev.edgeIndex - 1);
+                T.Remove(prv);
+
+                T.Add(ev);
+                helper[ev.edgeIndex] = ev;
+
+            }
+            else
+            {
+                Event Left = T.DirectUpperAndLower(ev).Value;
+                
+                if(helper[Left.edgeIndex].type == vertexType.Merge)
+                {
+                    output.Add(new Line(ev.vertix,helper[Left.edgeIndex].vertix));
+                }
+                helper[Left.edgeIndex] = ev;
+            }
+            //throw new NotImplementedException();
         }
 
 
