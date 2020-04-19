@@ -146,6 +146,12 @@ namespace CGAlgorithms.Algorithms.PolygonTriangulation
                 else if (ev.type == vertexType.Regular) HandleRegular(ev);
 
             }
+
+            foreach(Line l in output)
+            {
+                outLines.Add(l);
+            }
+
         }
 
         private void HandleStart(Event ev)
