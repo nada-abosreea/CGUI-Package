@@ -163,7 +163,11 @@ namespace CGAlgorithms.Algorithms.PolygonTriangulation
 
         private void HandleEnd(Event ev)
         {
-            if(helper[ev.edgeIndex-1].type == vertexType.Merge)
+            if(helper[ev.edgeIndex-1].type == vertexType.Merge && ev.edgeIndex!=0)
+            {
+                output.Add(new Line(ev.vertix, helper[ev.edgeIndex - 1].vertix));
+            }
+            if (helper[P.lines.Count - 1].type == vertexType.Merge && ev.edgeIndex == 0)
             {
                 output.Add(new Line(ev.vertix, helper[ev.edgeIndex - 1].vertix));
             }
@@ -185,11 +189,19 @@ namespace CGAlgorithms.Algorithms.PolygonTriangulation
         {
             if(helper[ev.edgeIndex-1].type == vertexType.Merge)
             {
-                output.Add(new Line(ev.vertix, helper[ev.edgeIndex-1].vertix));
+                output.Add(new Line(ev.vertix, helper[ev.edgeIndex - 1].vertix));
             }
 
-            Event prev = new Event(P.lines[ev.edgeIndex - 1].Start, getVertexType(ev.edgeIndex - 1), ev.edgeIndex - 1);
-            T.Remove(prev);
+            if (ev.edgeIndex != 0)
+            {
+                Event prev = new Event(P.lines[ev.edgeIndex - 1].Start, getVertexType(ev.edgeIndex - 1), ev.edgeIndex - 1);
+                T.Remove(prev);
+            }
+            else
+            {
+                Event prev = new Event(P.lines[P.lines.Count- 1].Start, getVertexType(P.lines.Count - 1), P.lines.Count - 1);
+                T.Remove(prev);
+            }
 
             Event Left = T.DirectUpperAndLower(ev).Value;
             
@@ -225,6 +237,7 @@ namespace CGAlgorithms.Algorithms.PolygonTriangulation
             }
             else
             {
+                //Left is null
                 Event Left = T.DirectUpperAndLower(ev).Value;
                 
                 if(helper[Left.edgeIndex].type == vertexType.Merge)
