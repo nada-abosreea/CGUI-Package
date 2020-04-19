@@ -91,7 +91,7 @@ namespace CGAlgorithms.Algorithms.PolygonTriangulation
             Point Prev, Vertex, Next;
             Vertex = P.lines[index].Start;
             Next = P.lines[index % P.lines.Count].End;
-            if (index != 0) Prev = P.lines[P.lines.Count - 1].Start;    
+            if (index == 0) Prev = P.lines[P.lines.Count - 1].Start;    
             else Prev = P.lines[index - 1].Start;     
             
             turn = HelperMethods.CheckTurn(new Line(Prev, Vertex), Next);
@@ -168,7 +168,7 @@ namespace CGAlgorithms.Algorithms.PolygonTriangulation
         private void HandleSplit(Event ev)
         {
             Event Left = T.DirectUpperAndLower(ev).Value;
-            output.Add(new Line(ev.vertix,helper[Left.edgeIndex].vertix));
+            output.Add(new Line(ev.vertix,helper[Left.edgeIndex].vertix)); //here
             helper[Left.edgeIndex] = ev;
             T.Add(ev);
             helper[ev.edgeIndex] = ev;
@@ -200,7 +200,7 @@ namespace CGAlgorithms.Algorithms.PolygonTriangulation
         {
             Point Prev, Next;
             Next = P.lines[ev.edgeIndex % P.lines.Count].End;
-            if (ev.edgeIndex != 0) Prev = P.lines[P.lines.Count - 1].Start;
+            if (ev.edgeIndex == 0) Prev = P.lines[P.lines.Count - 1].Start;
             else Prev = P.lines[ev.edgeIndex - 1].Start;
 
             if(Prev.Y > Next.Y) //P interior is at the right 
